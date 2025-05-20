@@ -106,11 +106,22 @@
       data.append("timestamp", timestamp);
       data.append("fingerprint", fingerprint);
 
-      try {
-        await fetch(url, {
-          method: "POST",
-          body: data
-        });
+     const response = await fetch(url, {
+  method: "POST",
+  body: data,
+});
+
+const result = await response.text();
+console.log("תגובה מהשרת:", result);
+
+if (response.ok) {
+  document.getElementById("message").innerText = "הרשמה בוצעה בהצלחה. מועבר לאתר הראשי...";
+  setTimeout(() => {
+    window.location.href = "https://ori-m-by.github.io/bar-yosef-movie-site/";
+  }, 2000);
+} else {
+  alert("אירעה שגיאה מהשרת: " + result);
+}
 
         document.getElementById("message").innerText = "הרשמה בוצעה בהצלחה. מועבר לאתר הראשי...";
         setTimeout(() => {
