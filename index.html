@@ -89,46 +89,51 @@
     document.getElementById("verifyForm").addEventListener("submit", async function(event) {
       event.preventDefault();
 
+      const button = document.querySelector("button");
+      button.disabled = true;
+
       const firstName = document.getElementById("firstName").value;
       const lastName = document.getElementById("lastName").value;
       const uuid = generateUUID();
       const fingerprint = await getFingerprint();
-      const timestamp = new Date().toLocaleString("he-IL");
 
       localStorage.setItem("uuid", uuid);
       localStorage.setItem("fingerprint", fingerprint);
 
-      const url = "https://script.google.com/macros/s/AKfycbyE6ZC4uxLqncOEGBUcJJmYJUwYUoqr-OtTq98JbzwjMTOexYD3CkU1VMZo6_z2iynGMw/exec"; // נחליף ב-Script שלך
-      const data = new URLSearchParams();
-      data.append("firstName", firstName);
-      data.append("lastName", lastName);
-      data.append("uuid", uuid);
-      data.append("timestamp", timestamp);
-      data.append("fingerprint", fingerprint);
+      const url = "https://script.google.com/macros/s/AKfycbws643QYcNP-H3OkJMX2_WIZSGM75StTAANIea6jTo-XpsEyajruqr_bmM4yB7C0L65EQ/exec";
+      const payload = {
+        firstName,
+        lastName,
+        uuid,
+        fingerprint
+      };
 
-     const response = await fetch(url, {
-  method: "POST",
-  body: data,
-});
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
 
-const result = await response.text();
-console.log("תגובה מהשרת:", result);
+        const result = await response.text();
+        console.log("תשובה מהשרת:", result);
 
-if (response.ok) {
-  document.getElementById("message").innerText = "הרשמה בוצעה בהצלחה. מועבר לאתר הראשי...";
-  setTimeout(() => {
-    window.location.href = "https://ori-m-by.github.io/bar-yosef-movie-site/";
-  }, 2000);
-} else {
-  alert("אירעה שגיאה מהשרת: " + result);
-}
+        if (!response.ok) {
+          alert("השרת החזיר שגיאה:\n" + result);
+          button.disabled = false;
+          return;
+        }
 
         document.getElementById("message").innerText = "הרשמה בוצעה בהצלחה. מועבר לאתר הראשי...";
         setTimeout(() => {
           window.location.href = "https://ori-m-by.github.io/bar-yosef-movie-site/";
         }, 2000);
       } catch (e) {
-        alert("אירעה שגיאה בשליחת הנתונים. נסה שוב מאוחר יותר.");
+        console.error("שגיאת רשת:", e);
+        alert("שגיאת רשת:\n" + e.message);
+        button.disabled = false;
       }
     });
   </script>
