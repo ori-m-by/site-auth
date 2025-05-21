@@ -17,21 +17,25 @@
   <div class="container">
     <h1>אימות משתמשים</h1>
 
-    <form id="gfForm"
-          action="https://docs.google.com/forms/d/e/1FAIpQLSd5s2wQtNtPQMo01154Dhg_DbmfaaAoOBWWnIeNNfu91OF3Mw/formResponse"
-          method="POST"
-          target="hidden_iframe">
+   <form id="gfForm"
+      action="https://docs.google.com/forms/d/e/1FAIpQLSd5s2wQtNtPQMo01154Dhg_DbmfaaAoOBWWnIeNNfu91OF3Mw/formResponse"
+      method="POST"
+      target="hidden_iframe">
 
-      <!-- למשתמשים: שם פרטי ושם משפחה -->
-      <input id="firstName" name="entry.1556973825" placeholder="שם פרטי" required />
-      <input id="lastName"  name="entry.1486477008" placeholder="שם משפחה" required />
+  <!-- שדות משתמש -->
+  <input id="firstName" name="entry.1556973825" placeholder="שם פרטי" required />
+  <input id="lastName"  name="entry.1486477008" placeholder="שם משפחה" required />
 
-      <!-- אוטומטיים, לא נגישים למשתמש -->
-      <input id="uuid" name="entry.1880348667" type="hidden" />
-      <input id="fp"   name="entry.84810643"    type="hidden" />
+  <!-- סיסמה (entry.1639694144) -->
+  <input id="password"  name="entry.1639694144" type="password" placeholder="בחר סיסמה" required />
 
-      <button type="submit">הרשמה</button>
-    </form>
+  <!-- UUID מוסתר -->
+  <input id="uuid"      name="entry.1880348667" type="hidden" />
+
+  <button type="submit">הרשמה</button>
+</form>
+<iframe name="hidden_iframe" style="display:none;"></iframe>
+
 
     <iframe name="hidden_iframe" style="display:none;"></iframe>
     <div class="message" id="message"></div>
