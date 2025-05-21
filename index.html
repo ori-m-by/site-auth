@@ -40,25 +40,22 @@
   </div>
 
   <script>
-    // יוצר UUID ייחודי
     function generateUUID() {
       return crypto.randomUUID();
     }
-    // מחשב fingerprint מבוסס userAgent, platform ו-language
     async function getFingerprint() {
       return btoa(navigator.userAgent + navigator.platform + navigator.language);
     }
 
     window.addEventListener("DOMContentLoaded", async () => {
-      // מלא שדות נסתרים לפני השליחה
+      // מלא את השדות הנסתרים
       document.getElementById("uuid").value = generateUUID();
       document.getElementById("fp").value   = await getFingerprint();
 
-      // לאחר שליחת הטופס, הינחה ופנה לאתר הראשי
-      const form = document.getElementById("gfForm");
-      form.addEventListener("submit", () => {
+      // אחרי שליחת הטופס, הצג הודעה והעבר לאתר הראשי
+      document.getElementById("gfForm").addEventListener("submit", () => {
         document.getElementById("message").innerText =
-          "הרשמה נשלחה! מועבר לאתר הראשי…";
+          "הרשמה נשלחה! מוביל לאתר הראשי…";
         setTimeout(() => {
           window.location.href =
             "https://ori-m-by.github.io/bar-yosef-movie-site/";
