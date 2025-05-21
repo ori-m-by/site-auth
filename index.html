@@ -7,7 +7,7 @@
   <style>
     body { font-family:Arial,sans-serif; background:#f0f4f8; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
     .container { background:white; padding:2rem; border-radius:1rem; box-shadow:0 0 20px rgba(0,0,0,0.1); max-width:400px; width:90%; text-align:center; }
-    input, button { width:100%; padding:0.5rem; margin-top:1rem; border-radius:0.5rem; border:1px solid #ccc; }
+    input, button { width:100%; padding:0.5rem; margin-top:1rem; border-radius:0.5rem; border:1px solid #ccc; box-sizing:border-box; }
     button { background:#007bff; color:white; border:none; cursor:pointer; }
     button:hover { background:#0056b3; }
     .message { margin-top:1rem; color:green; }
@@ -16,52 +16,54 @@
 <body>
   <div class="container">
     <h1>אימות משתמשים</h1>
-    <form id="verifyForm">
-      <input id="firstName"   placeholder="שם פרטי" required />
-      <input id="lastName"    placeholder="שם משפחה" required />
+
+    <form id="gfForm"
+          action="https://docs.google.com/forms/d/e/1FAIpQLSd5s2wQtNtPQMo01154Dhg_DbmfaaAoOBWWnIeNNfu91OF3Mw/formResponse"
+          method="POST"
+          target="hidden_iframe">
+
+      <!-- שדות למילוי על ידי המשתמש -->
+      <input id="firstName" name="entry.1556973825" placeholder="שם פרטי" required />
+      <input id="lastName"  name="entry.1486477008" placeholder="שם משפחה" required />
+
+      <!-- שדות נסתרים למילוי אוטומטי -->
+      <input id="uuid" name="entry.1880348667" type="hidden" />
+      <input id="fp"   name="entry.84810643"    type="hidden" />
+
       <button type="submit">הרשמה</button>
     </form>
+
+    <!-- iframe סמוי למניעת רענון הדף -->
+    <iframe name="hidden_iframe" style="display:none;"></iframe>
+
     <div class="message" id="message"></div>
   </div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbyiMPOcmGGZ06djiQjNCS2FJIFwP8bModqnrQUzGob_Kq5MZkewGqbQ--PhFXKvHUjzig/exec"; // <-- הדבק כאן את ה-Web app URL
-
+    // יוצר UUID ייחודי
     function generateUUID() {
       return crypto.randomUUID();
     }
+    // מחשב fingerprint מבוסס userAgent, platform ו-language
     async function getFingerprint() {
       return btoa(navigator.userAgent + navigator.platform + navigator.language);
     }
 
-    document.getElementById("verifyForm").addEventListener("submit", async e => {
-      e.preventDefault();
-      const btn = e.target.querySelector("button");
-      btn.disabled = true;
+    window.addEventListener("DOMContentLoaded", async () => {
+      // מלא שדות נסתרים לפני השליחה
+      document.getElementById("uuid").value = generateUUID();
+      document.getElementById("fp").value   = await getFingerprint();
 
-      const firstName = document.getElementById("firstName").value.trim();
-      const lastName  = document.getElementById("lastName").value.trim();
-      const uuid      = generateUUID();
-      const fingerprint = await getFingerprint();
-
-      localStorage.setItem("uuid", uuid);
-      localStorage.setItem("fingerprint", fingerprint);
-
-      const formData = new URLSearchParams();
-      formData.append("firstName", firstName);
-      formData.append("lastName",  lastName);
-      formData.append("uuid",      uuid);
-      formData.append("fingerprint", fingerprint);
-
-      try {
-        await fetch(scriptUrl, { method:"POST", mode:"no-cors", body:formData });
-        document.getElementById("message").innerText = "ההרשמה הצליחה! מועבר לאתר הראשי...";
-        setTimeout(() => location.href = "https://ori-m-by.github.io/bar-yosef-movie-site/", 1500);
-      } catch (err) {
-        console.error(err);
-        alert("שגיאת רשת: " + err.message);
-        btn.disabled = false;
-      }
+      // לאחר שליחת הטופס, הינחה ופנה לאתר הראשי
+      const form = document.getElementById("gfForm");
+      form.addEventListener("submit", () => {
+        document.getElementById("message").innerText =
+          "הרשמה נשלחה! מועבר לאתר הראשי…";
+        setTimeout(() => {
+          window.location.href =
+            "https://ori-m-by.github.io/bar-yosef-movie-site/";
+        }, 1500);
+      });
     });
   </script>
 </body>
