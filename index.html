@@ -22,35 +22,31 @@
           method="POST"
           target="hidden_iframe">
 
-      <!-- שדות למילוי על ידי המשתמש -->
+      <!-- למשתמשים: שם פרטי ושם משפחה -->
       <input id="firstName" name="entry.1556973825" placeholder="שם פרטי" required />
       <input id="lastName"  name="entry.1486477008" placeholder="שם משפחה" required />
 
-      <!-- שדות נסתרים למילוי אוטומטי ולשמירה ב-localStorage -->
+      <!-- אוטומטיים, לא נגישים למשתמש -->
       <input id="uuid" name="entry.1880348667" type="hidden" />
       <input id="fp"   name="entry.84810643"    type="hidden" />
 
       <button type="submit">הרשמה</button>
     </form>
 
-    <!-- iframe סמוי למניעת רענון הדף -->
     <iframe name="hidden_iframe" style="display:none;"></iframe>
-
     <div class="message" id="message"></div>
   </div>
 
   <script>
-    // יוצר UUID ייחודי
     function generateUUID() {
       return crypto.randomUUID();
     }
-    // מחשב fingerprint מבוסס userAgent, platform ו-language
     async function getFingerprint() {
       return btoa(navigator.userAgent + navigator.platform + navigator.language);
     }
 
     window.addEventListener("DOMContentLoaded", async () => {
-      // קרא UUID קיים או צור חדש
+      // שמירת ושחרור UUID פעם אחת בלבד
       let uuid = localStorage.getItem("uuid");
       if (!uuid) {
         uuid = generateUUID();
@@ -58,21 +54,15 @@
       }
       document.getElementById("uuid").value = uuid;
 
-      // קרא fingerprint קיים או צור חדש
-      let fp = localStorage.getItem("fingerprint");
-      if (!fp) {
-        fp = await getFingerprint();
-        localStorage.setItem("fingerprint", fp);
-      }
+      // fingerprint לא נשמר כלל ל-localStorage
+      const fp = await getFingerprint();
       document.getElementById("fp").value = fp;
 
-      // אחרי שליחת הטופס, הצג הודעה והעבר לאתר הראשי
       document.getElementById("gfForm").addEventListener("submit", () => {
         document.getElementById("message").innerText =
           "הרשמה נשלחה! מועבר לאתר הראשי…";
         setTimeout(() => {
-          window.location.href =
-            "https://ori-m-by.github.io/bar-yosef-movie-site/";
+          location.href = "https://ori-m-by.github.io/bar-yosef-movie-site/";
         }, 1500);
       });
     });
