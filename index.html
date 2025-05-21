@@ -26,7 +26,7 @@
       <input id="firstName" name="entry.1556973825" placeholder="שם פרטי" required />
       <input id="lastName"  name="entry.1486477008" placeholder="שם משפחה" required />
 
-      <!-- שדות נסתרים למילוי אוטומטי -->
+      <!-- שדות נסתרים למילוי אוטומטי ולשמירה ב-localStorage -->
       <input id="uuid" name="entry.1880348667" type="hidden" />
       <input id="fp"   name="entry.84810643"    type="hidden" />
 
@@ -40,22 +40,36 @@
   </div>
 
   <script>
+    // יוצר UUID ייחודי
     function generateUUID() {
       return crypto.randomUUID();
     }
+    // מחשב fingerprint מבוסס userAgent, platform ו-language
     async function getFingerprint() {
       return btoa(navigator.userAgent + navigator.platform + navigator.language);
     }
 
     window.addEventListener("DOMContentLoaded", async () => {
-      // מלא את השדות הנסתרים
-      document.getElementById("uuid").value = generateUUID();
-      document.getElementById("fp").value   = await getFingerprint();
+      // קרא UUID קיים או צור חדש
+      let uuid = localStorage.getItem("uuid");
+      if (!uuid) {
+        uuid = generateUUID();
+        localStorage.setItem("uuid", uuid);
+      }
+      document.getElementById("uuid").value = uuid;
+
+      // קרא fingerprint קיים או צור חדש
+      let fp = localStorage.getItem("fingerprint");
+      if (!fp) {
+        fp = await getFingerprint();
+        localStorage.setItem("fingerprint", fp);
+      }
+      document.getElementById("fp").value = fp;
 
       // אחרי שליחת הטופס, הצג הודעה והעבר לאתר הראשי
       document.getElementById("gfForm").addEventListener("submit", () => {
         document.getElementById("message").innerText =
-          "הרשמה נשלחה! מוביל לאתר הראשי…";
+          "הרשמה נשלחה! מועבר לאתר הראשי…";
         setTimeout(() => {
           window.location.href =
             "https://ori-m-by.github.io/bar-yosef-movie-site/";
