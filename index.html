@@ -1,81 +1,64 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>אימות משתמשים</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f0f4f8; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
-    .container { background:white; padding:2rem; border-radius:1rem; box-shadow:0 0 20px rgba(0,0,0,0.1); width:90%; max-width:400px; }
-    h1 { text-align:center; margin-bottom:1rem; }
+    body { font-family:Arial,sans-serif; background:#f0f4f8; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+    .container { background:white; padding:2rem; border-radius:1rem; box-shadow:0 0 20px rgba(0,0,0,0.1); max-width:400px; width:90%; text-align:center; }
     input, button { width:100%; padding:0.5rem; margin-top:1rem; border-radius:0.5rem; border:1px solid #ccc; }
     button { background:#007bff; color:white; border:none; cursor:pointer; }
     button:hover { background:#0056b3; }
-    .message { text-align:center; margin-top:1rem; color:green; }
+    .message { margin-top:1rem; color:green; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>אימות משתמשים</h1>
     <form id="verifyForm">
-      <input type="text" id="firstName" placeholder="שם פרטי" required />
-      <input type="text" id="lastName" placeholder="שם משפחה" required />
+      <input id="firstName"   placeholder="שם פרטי" required />
+      <input id="lastName"    placeholder="שם משפחה" required />
       <button type="submit">הרשמה</button>
     </form>
     <div class="message" id="message"></div>
   </div>
 
   <script>
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyiMPOcmGGZ06djiQjNCS2FJIFwP8bModqnrQUzGob_Kq5MZkewGqbQ--PhFXKvHUjzig/exec"; // <-- הדבק כאן את ה-Web app URL
+
     function generateUUID() {
       return crypto.randomUUID();
     }
     async function getFingerprint() {
-      const ua = navigator.userAgent;
-      const pl = navigator.platform;
-      const lg = navigator.language;
-      return btoa(ua + pl + lg);
+      return btoa(navigator.userAgent + navigator.platform + navigator.language);
     }
 
-    document.getElementById("verifyForm")
-      .addEventListener("submit", async function(e) {
+    document.getElementById("verifyForm").addEventListener("submit", async e => {
       e.preventDefault();
-      const btn = this.querySelector("button");
+      const btn = e.target.querySelector("button");
       btn.disabled = true;
 
-      const firstName = document.getElementById("firstName").value;
-      const lastName  = document.getElementById("lastName").value;
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName  = document.getElementById("lastName").value.trim();
       const uuid      = generateUUID();
       const fingerprint = await getFingerprint();
-      const timestamp = new Date().toLocaleString("he-IL");
 
       localStorage.setItem("uuid", uuid);
       localStorage.setItem("fingerprint", fingerprint);
 
       const formData = new URLSearchParams();
       formData.append("firstName", firstName);
-      formData.append("lastName", lastName);
-      formData.append("uuid", uuid);
-      formData.append("timestamp", timestamp);
+      formData.append("lastName",  lastName);
+      formData.append("uuid",      uuid);
       formData.append("fingerprint", fingerprint);
 
-      // **ללא שילוב של JSON** ו**ללא כותרות** – כדי שזה ייחשב simple request (no preflight)
       try {
-        await fetch(
-          "https://script.google.com/macros/s/AKfycbzCJf0zFcKggMh-tIOSOcryqrGELofNXnkE17WFB3QBCWe06BW4qbOSMO3RiGwci0WJ8A/exec",
-          {
-            method: "POST",
-            mode: "no-cors",
-            body: formData
-          }
-        );
-        // אין אפשרות לקרוא לתגובה ב no-cors, אבל הנתונים נשלחים
-        document.getElementById("message").innerText =
-          "הרשמה הושלמה! מועבר לאתר הראשי...";
-        setTimeout(() => {
-          window.location.href =
-            "https://ori-m-by.github.io/bar-yosef-movie-site/";
-        }, 1500);
+        await fetch(scriptUrl, { method:"POST", mode:"no-cors", body:formData });
+        document.getElementById("message").innerText = "ההרשמה הצליחה! מועבר לאתר הראשי...";
+        setTimeout(() => location.href = "https://ori-m-by.github.io/bar-yosef-movie-site/", 1500);
       } catch (err) {
+        console.error(err);
         alert("שגיאת רשת: " + err.message);
         btn.disabled = false;
       }
